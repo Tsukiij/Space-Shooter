@@ -84,6 +84,7 @@ class SceneMain extends Phaser.Scene {
             this.game.config.height * 0.9,
             "sprPlayer"
         );
+        this.player.setScale(1.6)
 
         this.score = 0;
         this.scoreLabel = this.add.bitmapText(10, 5, "pixelFont", "SCORE", 20);
@@ -98,6 +99,7 @@ class SceneMain extends Phaser.Scene {
         this.enemies = this.add.group();
         this.enemyLasers = this.add.group();
         this.playerLasers = this.add.group();
+        this.powerUp = this.add.group()
 
         this.time.addEvent({
             delay: 1000,
@@ -138,17 +140,21 @@ class SceneMain extends Phaser.Scene {
             loop: true
         });
 
-        // this.time.addEvent({
-        //     delay: 2000,
-        //     callback: function () {
-        //         var cupcake = null;
-        //         if (Phaser.Math.Between(0, 10) >= 3) {
-        //             cupcake = new Cupcake(this, Phaser.Math.Between(0, this.game.config.width), 0)
-        //         }
-        //     },
-        //     callbackScope: this,
-        //     loop: true
-        // })
+        this.time.addEvent({
+            delay: 6000,
+            callback: function () {
+                var cupcake = null;
+                if (Phaser.Math.Between(0, 10) >= 5) {
+                    cupcake = new Cupcake(this, Phaser.Math.Between(0, this.game.config.width), 0)
+                }
+
+                if (cupcake !== null) {
+                    this.powerUp.add(cupcake);
+                }
+            },
+            callbackScope: this,
+            loop: true
+        })
 
         this.physics.add.collider(this.playerLasers, this.enemies, function (playerLaser, enemy) {
             if (enemy) {
@@ -158,7 +164,8 @@ class SceneMain extends Phaser.Scene {
                 enemy.explode(true);
                 playerLaser.destroy();
                 this.score += 15;
-                this.scoreLabel.text = 'SCORE ' + this.score;
+                var scoreFormatted = this.zeroPad(this.score, 4)
+                this.scoreLabel.text = 'SCORE ' + scoreFormatted;
             }
         }, null, this);
 
@@ -180,8 +187,10 @@ class SceneMain extends Phaser.Scene {
             }
         });
 
-        this.physics.add.overlap(this.player, this.powerUps, function (player, powerUp) {
-            powerUp.disableBody(true, true)
+        this.physics.add.overlap(this.player, this.powerUp, function (player, cupcake) {
+            cupcake.destroy();
+            this.score += 30;
+            this.scoreLabel.text = 'SCORE ' + this.score;
         }, null, this)
     }
 
@@ -194,6 +203,14 @@ class SceneMain extends Phaser.Scene {
             }
         }
         return arr;
+    }
+
+    zeroPad(number, size) {
+        var stringNumber = String(number);
+        while (stringNumber.length < (size || 2)) {
+            stringNumber = "0" + stringNumber;
+        }
+        return stringNumber
     }
 
     update() {
@@ -226,20 +243,17 @@ class SceneMain extends Phaser.Scene {
                         var enemy = this.enemies.getChildren()[i];
                         enemy.explode(true);
                         this.score += 15;
-                        this.scoreLabel.text = 'SCORE ' + this.score;
+                        var scoreFormatted = this.zeroPad(this.score, 4)
+                        this.scoreLabel.text = 'SCORE ' + scoreFormatted;
                     }
                     this.player.setData("hasBomb", 1)
                     this.bomb.destroy()
                 }
+            }
 
-                // if (this.player.getData("hasBomb") > 0) {
-                //     for (var i = 0; i < this.enemies.getChildren().length; i++) {
-                //         var enemy = this.enemies.getChildren()[i];
-                //         enemy.explode(true);
-                //     }
-                //     this.player.setData("hasBomb", 0)
-                //     this.bombOne.destroy()
-                // }
+            if (this.score >= 200) {
+                this.scene.launch('SceneLink')
+                this.scene.pause()
             }
         }
 

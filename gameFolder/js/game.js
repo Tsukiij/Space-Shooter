@@ -1,7 +1,7 @@
 var config = {
     type: Phaser.WEBGL,
-    width: 480,
-    height: 640,
+    width: 500,
+    height: 660,
     backgroundColor: "black",
     physics: {
         default: "arcade",
@@ -11,6 +11,7 @@ var config = {
     },
     scene: [SceneMainMenu,
         SceneMain,
+        SceneLink,
         SceneGameOver
     ],
     pixelArt: true,
