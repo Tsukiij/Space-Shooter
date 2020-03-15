@@ -25,7 +25,7 @@ class SceneMain extends Phaser.Scene {
             frameWidth: 16,
             frameHeight: 16
         });
-        this.load.image("powerUp", "content/kawaii-cupcake.png")
+        this.load.image("powerUp", "content/pills-color.png")
         this.load.image("bombBtn", "content/small-bomb-29.png")
         this.load.audio("sndExplode0", "content/sndExplode0.wav");
         this.load.audio("sndExplode1", "content/sndExplode1.wav");
@@ -143,13 +143,13 @@ class SceneMain extends Phaser.Scene {
         this.time.addEvent({
             delay: 6000,
             callback: function () {
-                var cupcake = null;
+                var medicine = null;
                 if (Phaser.Math.Between(0, 10) >= 5) {
-                    cupcake = new Cupcake(this, Phaser.Math.Between(0, this.game.config.width), 0)
+                    medicine = new Pills(this, Phaser.Math.Between(0, this.game.config.width), 0)
                 }
 
-                if (cupcake !== null) {
-                    this.powerUp.add(cupcake);
+                if (medicine !== null) {
+                    this.powerUp.add(medicine);
                 }
             },
             callbackScope: this,
@@ -187,8 +187,8 @@ class SceneMain extends Phaser.Scene {
             }
         });
 
-        this.physics.add.overlap(this.player, this.powerUp, function (player, cupcake) {
-            cupcake.destroy();
+        this.physics.add.overlap(this.player, this.powerUp, function (player, medicine) {
+            medicine.destroy();
             this.score += 30;
             this.scoreLabel.text = 'SCORE ' + this.score;
         }, null, this)
@@ -251,7 +251,7 @@ class SceneMain extends Phaser.Scene {
                 }
             }
 
-            if (this.score >= 200) {
+            if (this.score >= 250) {
                 this.scene.launch('SceneLink')
                 this.scene.pause()
             }

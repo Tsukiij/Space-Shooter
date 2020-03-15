@@ -182,7 +182,7 @@ class CarrierShip extends Entity {
     }
 }
 
-class Cupcake extends Entity {
+class Pills extends Entity {
     constructor(scene, x, y) {
         super(scene, x, y, "powerUp", "cupcake");
         this.play("powerUp");
