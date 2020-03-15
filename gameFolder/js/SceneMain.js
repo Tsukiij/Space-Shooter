@@ -14,7 +14,7 @@ class SceneMain extends Phaser.Scene {
             frameWidth: 16,
             frameHeight: 16
         });
-        this.load.image("sprEnemy1", "content/sprEnemy1.png");
+        this.load.image("sprEnemy1", "content/coronaOne.png");
         this.load.spritesheet("sprEnemy2", "content/sprEnemy2.png", {
             frameWidth: 16,
             frameHeight: 16
@@ -25,9 +25,12 @@ class SceneMain extends Phaser.Scene {
             frameWidth: 16,
             frameHeight: 16
         });
+        this.load.image("powerUp", "content/kawaii-cupcake.png")
+        this.load.image("bombBtn", "content/small-bomb-29.png")
         this.load.audio("sndExplode0", "content/sndExplode0.wav");
         this.load.audio("sndExplode1", "content/sndExplode1.wav");
         this.load.audio("sndLaser", "content/sndLaser.wav");
+        this.load.bitmapFont("pixelFont", "assets/click_0.png", "assets/click.xml")
     }
     create() {
         this.anims.create({
@@ -70,12 +73,20 @@ class SceneMain extends Phaser.Scene {
             this.backgrounds.push(bg);
         }
 
+        this.bomb = this.add.sprite(
+            this.game.config.width * 0.1,
+            this.game.config.width * 1.2,
+            'bombBtn')
+
         this.player = new Player(
             this,
             this.game.config.width * 0.5,
-            this.game.config.height * 0.5,
+            this.game.config.height * 0.9,
             "sprPlayer"
         );
+
+        this.score = 0;
+        this.scoreLabel = this.add.bitmapText(10, 5, "pixelFont", "SCORE", 20);
 
         this.keyW = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.W);
         this.keyS = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.S);
@@ -127,6 +138,18 @@ class SceneMain extends Phaser.Scene {
             loop: true
         });
 
+        // this.time.addEvent({
+        //     delay: 2000,
+        //     callback: function () {
+        //         var cupcake = null;
+        //         if (Phaser.Math.Between(0, 10) >= 3) {
+        //             cupcake = new Cupcake(this, Phaser.Math.Between(0, this.game.config.width), 0)
+        //         }
+        //     },
+        //     callbackScope: this,
+        //     loop: true
+        // })
+
         this.physics.add.collider(this.playerLasers, this.enemies, function (playerLaser, enemy) {
             if (enemy) {
                 if (enemy.onDestroy !== undefined) {
@@ -134,8 +157,10 @@ class SceneMain extends Phaser.Scene {
                 }
                 enemy.explode(true);
                 playerLaser.destroy();
+                this.score += 15;
+                this.scoreLabel.text = 'SCORE ' + this.score;
             }
-        });
+        }, null, this);
 
         this.physics.add.overlap(this.player, this.enemies, function (player, enemy) {
             if (!player.getData("isDead") &&
@@ -154,6 +179,10 @@ class SceneMain extends Phaser.Scene {
                 laser.destroy();
             }
         });
+
+        this.physics.add.overlap(this.player, this.powerUps, function (player, powerUp) {
+            powerUp.disableBody(true, true)
+        }, null, this)
     }
 
     getEnemiesByType(type) {
@@ -189,6 +218,28 @@ class SceneMain extends Phaser.Scene {
             else {
                 this.player.setData("timerShootTick", this.player.getData("timerShootDelay") - 1);
                 this.player.setData("isShooting", false);
+            }
+
+            if (this.keyB.isDown) {
+                if (this.player.getData("hasBomb") > 1) {
+                    for (var i = 0; i < this.enemies.getChildren().length; i++) {
+                        var enemy = this.enemies.getChildren()[i];
+                        enemy.explode(true);
+                        this.score += 15;
+                        this.scoreLabel.text = 'SCORE ' + this.score;
+                    }
+                    this.player.setData("hasBomb", 1)
+                    this.bomb.destroy()
+                }
+
+                // if (this.player.getData("hasBomb") > 0) {
+                //     for (var i = 0; i < this.enemies.getChildren().length; i++) {
+                //         var enemy = this.enemies.getChildren()[i];
+                //         enemy.explode(true);
+                //     }
+                //     this.player.setData("hasBomb", 0)
+                //     this.bombOne.destroy()
+                // }
             }
         }
 

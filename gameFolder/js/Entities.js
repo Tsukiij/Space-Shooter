@@ -45,6 +45,7 @@ class Player extends Entity {
         this.setData("isShooting", false);
         this.setData("timerShootDelay", 10);
         this.setData("timerShootTick", this.getData("timerShootDelay") - 1);
+        this.setData("hasBomb", 2)
     }
     moveUp() {
         this.body.velocity.y = -this.getData("speed");
@@ -177,6 +178,14 @@ class CarrierShip extends Entity {
     constructor(scene, x, y) {
         super(scene, x, y, "sprEnemy2", "CarrierShip");
         this.play("sprEnemy2");
+        this.body.velocity.y = Phaser.Math.Between(50, 100);
+    }
+}
+
+class Cupcake extends Entity {
+    constructor(scene, x, y) {
+        super(scene, x, y, "powerUp", "cupcake");
+        this.play("powerUp");
         this.body.velocity.y = Phaser.Math.Between(50, 100);
     }
 }
